@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 app.secret_key = "Hello-guys-this-is-super-secret-key"
 
-app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://b8d20ec0f53090:46cce531@us-cdbr-east-03.cleardb.com/heroku_a9c1dd5c5ec85b3?reconnect=true/taskimdb"
+app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://adminrahul:password@db4free.net:3306/fyndimdb"
 
 db = SQLAlchemy(app)
 

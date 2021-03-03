@@ -15,7 +15,7 @@ if local_server:
     app.config['SQLALCHEMY_DATABASE_URI'] = configuration['local_uri']
 else:
     app.config['SQLALCHEMY_DATABASE_URI'] = configuration['production_uri']
-
+# mysql://adminrahul:password@db4free.net:3306/fyndimdb (first free database used but not working properly)
 db = SQLAlchemy(app)
 
 

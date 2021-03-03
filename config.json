@@ -1,9 +1,9 @@
 {
   "configuration":
   {
-    "local_server": "True",
+    "local_server": false,
     "local_uri": "mysql://root:@localhost/taskdb",
-    "production_uri": "mysql://root:@localhost/taskdb",
+    "production_uri": "mysql://b8d20ec0f53090:46cce531@us-cdbr-east-03.cleardb.com:3306/taskimdb",
     "admin_user": "Admin",
     "admin_password": "12345",
     "user1": "Suresh",

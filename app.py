@@ -1,21 +1,11 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
-import json
-
-# Gathering properties from config.json
-with open("config.json", "r") as c:
-    configuration = json.load(c)['configuration']
 
 app = Flask(__name__)
 app.secret_key = "Hello-guys-this-is-super-secret-key"
 
-# Database URI configuration
-local_server = configuration['local_server']
-if local_server:
-    app.config['SQLALCHEMY_DATABASE_URI'] = configuration['local_uri']
-else:
-    app.config['SQLALCHEMY_DATABASE_URI'] = configuration['production_uri']
-# mysql://adminrahul:password@db4free.net:3306/fyndimdb (first free database used but not working properly)
+app.config['SQLALCHEMY_DATABASE_URI'] = "mysql://b8d20ec0f53090:46cce531@us-cdbr-east-03.cleardb.com/heroku_a9c1dd5c5ec85b3?reconnect=true/taskimdb"
+
 db = SQLAlchemy(app)
 
 

@@ -8,7 +8,8 @@ from functools import wraps
 app = Flask(__name__)
 app.secret_key = "Hello-guys-this-is-super-secret-key"
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://adminrahul:password@db4free.net:3306/fyndimdb'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://adminrahul:password@db4free.net:3306/fyndimdb'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://b8d20ec0f53090:46cce531@us-cdbr-east-03.cleardb.com:3306/taskimdb'
 
 db = SQLAlchemy(app)
 

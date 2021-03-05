@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from werkzeug.security import generate_password_hash,check_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 import jwt
 from functools import wraps
@@ -26,9 +26,21 @@ class Movies(db.Model):
     director = db.Column(db.String(80), nullable=False)
     genre = db.Column(db.String(80), nullable=False)
     imdb_score = db.Column(db.Float, nullable=False)
-    movie_name = db.Column(db.String(80), nullable=False)
+    name = db.Column(db.String(80), nullable=False)
+
+    @property
+    def serialized(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "director": self.director,
+            "genre": self.genre.split(","),
+            "99popularity": self.popularity,
+            "imdb_score": self.imdb_score
+        }
 
 
+# Decorator for token decoding and user info gathering
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -53,47 +65,51 @@ def token_required(f):
     return decorated
 
 
+# Home page
 @app.route('/')
 def home():
     return jsonify({'message': 'Welcome to IMDB Task page. Login to perform operations.'})
 
 
+# See all movies in database
 @app.route('/movies', methods=['GET'])
 @token_required
 def get_all_movies(current_user):
     movies = Movies.query.all()
 
-    output = []
-
-    for movie in movies:
-        movie_data = {'Movie_id': movie.id, 'Movie_name': movie.movie_name, '99popularity': movie.popularity,
-                      'Director': movie.director, 'Genre': movie.genre, 'IMDB_Score': movie.imdb_score}
-        output.append(movie_data)
-
-    return jsonify({'Movies': output})
+    return jsonify([movie.serialized for movie in movies])
 
 
+# Get movie by id
+@app.route('/movies/<id>', methods=['GET'])
+@token_required
+def get_one_movie(current_user, id):
+    movie = Movies.query.filter_by(id=id).first()
+
+    return jsonify([movie.serialized])
+
+
+# Add new movies
 @app.route('/movies', methods=['POST'])
 @token_required
 def add_movie(current_user):
-
     if not users[current_user][1]:
         return jsonify({'message': 'You are not allowed to perform this action!!'})
 
     data = request.get_json()
 
-    new_movie = Movies(popularity=data['popularity'], director=data['director'], genre=data['genre'],
-                       imdb_score=data['imdb_score'], movie_name=data['movie_name'])
+    new_movie = Movies(popularity=data['99popularity'], director=data['director'], genre=data['genre'],
+                       imdb_score=data['imdb_score'], name=data['name'])
     db.session.add(new_movie)
     db.session.commit()
 
-    return jsonify({'message': 'New Movie added successfully.'})
+    return jsonify({'message': 'New Movie added successfully.', 'movie': data})
 
 
+# Modify movie details
 @app.route('/movies/<id>', methods=['PUT'])
 @token_required
 def modify_movie_data(current_user, id):
-
     if not users[current_user][1]:
         return jsonify({'message': 'You are not allowed to perform this action!!'})
 
@@ -104,20 +120,20 @@ def modify_movie_data(current_user, id):
     else:
         data = request.get_json()
 
-        movie.movie_name = data['movie_name']
-        movie.popularity = data['popularity']
+        movie.name = data['name']
+        movie.popularity = data['99popularity']
         movie.director = data['director']
         movie.genre = data['genre']
         movie.imdb_score = data['imdb_score']
 
         db.session.commit()
-        return jsonify({'message': 'Movie data updated successfully.'})
+        return jsonify({'message': 'Movie data updated successfully.', 'movie': data})
 
 
+# Delete movies
 @app.route('/movies/<id>', methods=['DELETE'])
 @token_required
 def delete_movie(current_user, id):
-
     if not users[current_user][1]:
         return jsonify({'message': 'You are not allowed to perform this action!!'})
 
@@ -131,106 +147,22 @@ def delete_movie(current_user, id):
         return jsonify({'message': 'Movie is Deleted successfully.'})
 
 
+# Search movies by id, movie_name, genre,director, popularity and imdb_score
 @app.route('/search', methods=['GET'])
 @token_required
 def search_movie(current_user):
-    data = request.get_json()
+    movies = None
 
-    if not data:
-        return jsonify({'message': "Please enter some data to search further."})
+    name = request.args.get('name')
+    if name:
+        movies = Movies.query.filter_by(name=name).all()
 
-    elif 'id' in data.keys():
-        movie = Movies.query.filter_by(id=data['id']).first()
-
-        if not movie:
-            return jsonify({'message': 'No Movie found for entered id!!'})
-
-        else:
-            movie_data = [{'Movie_id': movie.id, 'Movie_name': movie.movie_name, '99popularity': movie.popularity,
-                           'Director': movie.director, 'Genre': movie.genre, 'IMDB_Score': movie.imdb_score}]
-
-            return jsonify({'Movie_data': movie_data})
-
-    elif 'movie_name' in data.keys():
-        movie = Movies.query.filter_by(movie_name=data['movie_name']).all()
-
-        if not movie:
-            return jsonify({'message': 'No Movie found for entered Name!!'})
-
-        else:
-            output = []
-
-            for movie in movie:
-                movie_data = {'Movie_id': movie.id, 'Movie_name': movie.movie_name, '99popularity': movie.popularity,
-                              'Director': movie.director, 'Genre': movie.genre, 'IMDB_Score': movie.imdb_score}
-                output.append(movie_data)
-
-            return jsonify({'Movie_data': output})
-
-    elif 'genre' in data.keys():
-        movie = Movies.query.filter_by(genre=data['genre']).all()
-
-        if not movie:
-            return jsonify({'message': 'No Movie found for entered Genre!!'})
-
-        else:
-            output = []
-            for movie in movie:
-                movie_data = {'Movie_id': movie.id, 'Movie_name': movie.movie_name, '99popularity': movie.popularity,
-                              'Director': movie.director, 'Genre': movie.genre, 'IMDB_Score': movie.imdb_score}
-                output.append(movie_data)
-
-            return jsonify({'Movie_data': output})
-
-    elif 'popularity' in data.keys():
-        movie = Movies.query.filter_by(popularity=data['popularity']).all()
-
-        if not movie:
-            return jsonify({'message': 'No Movie found for Popularity !!'})
-
-        else:
-            output = []
-            for movie in movie:
-                movie_data = {'Movie_id': movie.id, 'Movie_name': movie.movie_name, '99popularity': movie.popularity,
-                              'Director': movie.director, 'Genre': movie.genre, 'IMDB_Score': movie.imdb_score}
-                output.append(movie_data)
-
-            return jsonify({'Movie_data': output})
-
-    elif 'director' in data.keys():
-        movie = Movies.query.filter_by(director=data['director']).all()
-
-        if not movie:
-            return jsonify({'message': 'No Movie found for entered Director!!'})
-
-        else:
-            output = []
-            for movie in movie:
-                movie_data = {'Movie_id': movie.id, 'Movie_name': movie.movie_name, '99popularity': movie.popularity,
-                              'Director': movie.director, 'Genre': movie.genre, 'IMDB_Score': movie.imdb_score}
-                output.append(movie_data)
-
-            return jsonify({'Movie_data': output})
-
-    elif 'imdb_score' in data.keys():
-        movie = Movies.query.filter_by(imdb_score=data['imdb_score']).all()
-
-        if not movie:
-            return jsonify({'message': 'No Movie found for entered IMDB_Score!!'})
-
-        else:
-            output = []
-            for movie in movie:
-                movie_data = {'Movie_id': movie.id, 'Movie_name': movie.movie_name, '99popularity': movie.popularity,
-                              'Director': movie.director, 'Genre': movie.genre, 'IMDB_Score': movie.imdb_score}
-                output.append(movie_data)
-
-            return jsonify({'Movie_data': output})
-
-    else:
-        return jsonify({'message': 'nothing'})
+    if not movies:
+        return jsonify({"message": "No movies found"})
+    return jsonify({"movies": [movie.serialized for movie in movies]})
 
 
+# Login user and token generation
 @app.route('/login')
 def login():
     auth = request.authorization
@@ -245,13 +177,14 @@ def login():
     elif check_password_hash(users[user][0], auth.password):
         payload = {
             'exp': datetime.utcnow() + timedelta(minutes=30),
+            'iat': datetime.utcnow(),
             'sub': user
-            }
+        }
         return jsonify({'token': jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')})
     else:
         return jsonify({'message': 'You have entered wrong password!'})
 
 
 if __name__ == '__main__':
-    app.debug=True
+    app.debug = True
     app.run()

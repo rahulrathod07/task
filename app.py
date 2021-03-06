@@ -4,11 +4,22 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, timedelta
 import jwt
 from functools import wraps
+import json
+
+# Gathering properties from config.json
+with open("config.json", "r") as c:
+    configuration = json.load(c)['configuration']
 
 app = Flask(__name__)
 app.secret_key = "Hello-guys-this-is-super-secret-key"
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://adminrahul:password@db4free.net:3306/fyndimdb'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://adminrahul:password@db4free.net:3306/fyndimdb'
+# Database URI configuration
+local_server = configuration['local_server']
+if local_server:
+    app.config['SQLALCHEMY_DATABASE_URI'] = configuration['local_uri']
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = configuration['production_uri']
 
 db = SQLAlchemy(app)
 
@@ -58,7 +69,7 @@ def token_required(f):
             current_user = data['sub']
 
         except:
-            return jsonify({'message': 'Invalid Token!!  Login Again.'})
+            return jsonify({'message': 'Invalid Token.  Login Again.'})
 
         return f(current_user, *args, **kwargs)
 
@@ -94,7 +105,7 @@ def get_one_movie(current_user, id):
 @token_required
 def add_movie(current_user):
     if not users[current_user][1]:
-        return jsonify({'message': 'You are not allowed to perform this action!!'})
+        return jsonify({'message': 'You are not allowed to perform this action.'})
 
     data = request.get_json()
 
@@ -111,12 +122,12 @@ def add_movie(current_user):
 @token_required
 def modify_movie_data(current_user, id):
     if not users[current_user][1]:
-        return jsonify({'message': 'You are not allowed to perform this action!!'})
+        return jsonify({'message': 'You are not allowed to perform this action.'})
 
     movie = Movies.query.filter_by(id=id).first()
 
     if not movie:
-        return jsonify({'message': 'No Movie found for entered id!!'})
+        return jsonify({'message': 'No Movie found for entered id.'})
     else:
         data = request.get_json()
 
@@ -135,12 +146,12 @@ def modify_movie_data(current_user, id):
 @token_required
 def delete_movie(current_user, id):
     if not users[current_user][1]:
-        return jsonify({'message': 'You are not allowed to perform this action!!'})
+        return jsonify({'message': 'You are not allowed to perform this action'})
 
     movie = Movies.query.filter_by(id=id).first()
 
     if not movie:
-        return jsonify({'message': 'No Movie found for entered id!!'})
+        return jsonify({'message': 'No Movie found for entered id'})
     else:
         db.session.delete(movie)
         db.session.commit()
@@ -168,7 +179,7 @@ def login():
     auth = request.authorization
 
     if not auth or not auth.username or not auth.password:
-        return jsonify({'message': 'Could not verify!! Please enter all the required details to login.'})
+        return jsonify({'message': 'Could not verify. Please enter all the required details to login.'})
 
     user = auth.username
 

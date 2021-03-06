@@ -3,6 +3,6 @@
   {
     "local_server": false,
     "local_uri": "mysql://root:@localhost/taskdb",
-    "production_uri": "mysql://adminrahul:password@db4free.net:3306/fyndimdb"
+    "production_uri": "mysql://b8d20ec0f53090:46cce531@us-cdbr-east-03.cleardb.com/heroku_a9c1dd5c5ec85b3"
   }
 }

@@ -13,7 +13,7 @@ pip install -r requirements.txt
 5. Use other APIs
 
 # Scaling Suggestions
-* As of now my database is hosted on db4free.net which is free and does not give faster execution of query, so I will use those servers whose query execution speed is faster for my database.
+* As of now my database is hosted on heroku which is free and would have scailing limitations. So I will use those database services whose query execution speed is faster for my database.
 * For now, my application has a less amount of metadata about movies but when the size of metadata increases at that time I can use multiple servers to handle tons of requests which comes from clients and for that I will use load balancer which will handle the load receiving from clients and according to number of requests load balancer will divide requests to be handled by each server.
 * But we also want that when the load decreases our server should be released automatically. So how we can automate the increase and decrease of server that I haven’t figured out yet.
 * When metadata of movies will increase then the searching of movie from whole database will be difficult because we must compare with each value of database. So, for that I can use sorting of data by director name, movie name, popularity and imdb score and then I can apply binary search on sorted data which will reduce number of comparisons.

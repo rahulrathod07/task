@@ -112,13 +112,13 @@
 							}
 						],
 						"url": {
-							"raw": "{{base-url}}/movies/5",
+							"raw": "{{base-url}}/movies/{{movie-id}}",
 							"host": [
 								"{{base-url}}"
 							],
 							"path": [
 								"movies",
-								"5"
+								"{{movie-id}}"
 							]
 						}
 					},
@@ -169,7 +169,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"99popularity\": 68.0,\r\n    \"director\": \"Walter Grauman\",\r\n    \"genre\": [\r\n      \"Drama\",\r\n      \" Thriller\"\r\n    ],\r\n    \"imdb_score\": 6.8,\r\n    \"name\": \"Lady in a Cage\"\r\n  }",
+							"raw": "{\r\n        \"99popularity\": 68.0,\r\n        \"director\": \"Walter Grauman\",\r\n        \"genre\": [\r\n            \"Drama\",\r\n            \" Thriller\",\r\n            \"Comedy\"\r\n        ],\r\n        \"imdb_score\": 7.0,\r\n        \"name\": \"Lady in a Cage\"\r\n    }",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -218,7 +218,7 @@
 					"response": []
 				},
 				{
-					"name": "Search by movie name",
+					"name": "Search",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -229,7 +229,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{base-url}}/search?name=La grande illusion",
+							"raw": "{{base-url}}/search?genre=drama,romance",
 							"host": [
 								"{{base-url}}"
 							],
@@ -239,7 +239,27 @@
 							"query": [
 								{
 									"key": "name",
-									"value": "La grande illusion"
+									"value": "The",
+									"disabled": true
+								},
+								{
+									"key": "director",
+									"value": "james",
+									"disabled": true
+								},
+								{
+									"key": "99popularity",
+									"value": "80.0",
+									"disabled": true
+								},
+								{
+									"key": "imdb_score",
+									"value": "0.7",
+									"disabled": true
+								},
+								{
+									"key": "genre",
+									"value": "drama,romance"
 								}
 							]
 						}

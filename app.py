@@ -60,7 +60,7 @@ def token_required(f):
             token = request.headers['x-access-token']
 
         if not token:
-            return jsonify({'message': 'Token is missing!!'})
+            return jsonify({'message': 'Token is missing.'})
 
         try:
             data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
@@ -68,7 +68,7 @@ def token_required(f):
             current_user = data['sub']
 
         except:
-            return jsonify({'message': 'Invalid Token.  Login Again.'})
+            return jsonify({'message': 'Invalid Token. Login Again.'})
 
         return f(current_user, *args, **kwargs)
 
@@ -86,17 +86,17 @@ def home():
 @token_required
 def get_all_movies(current_user):
     movies = Movies.query.all()
-
-    return jsonify([movie.serialized for movie in movies])
+    return jsonify({"message": "Fetched all movies successfully.", "movies": [movie.serialized for movie in movies]})
 
 
 # Get movie by id
 @app.route('/movies/<id>', methods=['GET'])
 @token_required
 def get_one_movie(current_user, id):
-    movie = Movies.query.filter_by(id=id).first()
-
-    return jsonify([movie.serialized])
+    movie = Movies.query.get(id)
+    if not movie:
+        return jsonify({"message": "No movie found for entered id."}), 404
+    return jsonify({"message": "Fetched movie by id successfully.", "movie": movie.serialized})
 
 
 # Add new movies
@@ -105,43 +105,40 @@ def get_one_movie(current_user, id):
 def add_movie(current_user):
     if not users[current_user][1]:
         return jsonify({'message': 'You are not allowed to perform this action.'})
-
     data = request.get_json()
     movie = Movies.query.filter_by(name=data['name']).first()
-    if not movie:
-        new_movie = Movies(popularity=data['99popularity'], director=data['director'],
-                           genre=",".join(data['genre']),
-                           imdb_score=data['imdb_score'], name=data['name'])
-        db.session.add(new_movie)
-        db.session.commit()
-    else:
-        return jsonify({"message": "Movie already exist in table."})
-
-    return jsonify({'message': 'New Movie added successfully.', 'movie': data})
+    if movie:
+        return jsonify({'message': 'Movie already exist.'}), 409
+    new_movie = Movies(
+        popularity=data['99popularity'],
+        director=data['director'],
+        genre=','.join([x.strip() for x in data['genre']]),
+        imdb_score=data['imdb_score'],
+        name=data['name']
+    )
+    db.session.add(new_movie)
+    db.session.commit()
+    return jsonify({'message': 'New movie added successfully.', 'movie': new_movie.serialized})
 
 
 # Modify movie details
 @app.route('/movies/<id>', methods=['PUT'])
 @token_required
-def modify_movie_data(current_user, id):
+def update_movie(current_user, id):
     if not users[current_user][1]:
         return jsonify({'message': 'You are not allowed to perform this action.'})
 
-    movie = Movies.query.filter_by(id=id).first()
-
+    movie = Movies.query.get(id)
     if not movie:
-        return jsonify({'message': 'No Movie found for entered id.'})
-    else:
-        data = request.get_json()
-
-        movie.name = data['name']
-        movie.popularity = data['99popularity']
-        movie.director = data['director']
-        movie.genre = ",".join(data['genre'])
-        movie.imdb_score = data['imdb_score']
-
-        db.session.commit()
-        return jsonify({'message': 'Movie data updated successfully.', 'movie': data})
+        return jsonify({'message': 'No movie found for entered id.'}), 404
+    data = request.get_json()
+    movie.name = data['name']
+    movie.popularity = data['99popularity']
+    movie.director = data['director']
+    movie.genre = ','.join([x.strip() for x in data['genre']])
+    movie.imdb_score = data['imdb_score']
+    db.session.commit()
+    return jsonify({'message': 'Movie data updated successfully.', 'movie': movie.serialized})
 
 
 # Delete movies
@@ -149,46 +146,55 @@ def modify_movie_data(current_user, id):
 @token_required
 def delete_movie(current_user, id):
     if not users[current_user][1]:
-        return jsonify({'message': 'You are not allowed to perform this action'})
-
-    movie = Movies.query.filter_by(id=id).first()
-
+        return jsonify({'message': 'You are not allowed to perform this action.'})
+    movie = Movies.query.get(id)
     if not movie:
-        return jsonify({'message': 'No Movie found for entered id'})
-    else:
-        db.session.delete(movie)
-        db.session.commit()
-        return jsonify({'message': 'Movie is Deleted successfully.'})
+        return jsonify({'message': 'No movie found for entered id.'}), 404
+    db.session.delete(movie)
+    db.session.commit()
+    return jsonify({'message': 'Movie is deleted successfully.', 'movie': movie.serialized})
 
 
-# Search movies by id, movie_name, genre,director, popularity and imdb_score
+# Search movies by movie_name
 @app.route('/search', methods=['GET'])
 @token_required
 def search_movie(current_user):
-    movies = None
-
+    movies = []
+    filters = []
     name = request.args.get('name')
     if name:
-        movies = Movies.query.filter_by(name=name).all()
-
+        criteria = "%{}%".format(name)
+        filters.append(Movies.name.like(criteria))
+    director = request.args.get('director')
+    if director:
+        criteria = "%{}%".format(director)
+        filters.append(Movies.director.like(criteria))
+    imdb_score = request.args.get('imdb_score')
+    if imdb_score:
+        filters.append(Movies.popularity >= imdb_score)
+    popularity = request.args.get('99popularity')
+    if popularity:
+        filters.append(Movies.popularity >= popularity)
+    genre = request.args.get('genre')
+    if genre:
+        for x in genre.split(","):
+            criteria = "%{}%".format(x)
+            filters.append(Movies.genre.like(criteria))
+    movies = Movies.query.filter(*filters).all()
     if not movies:
-        return jsonify({"message": "No movies found"})
-    
-    return jsonify({"movies": [movie.serialized for movie in movies]})
+        return jsonify({'message': 'No movies found.', 'movies': movies})
+    return jsonify({'message': 'Movies filtered successfully.', 'movies': [movie.serialized for movie in movies]})
 
 
 # Login user and token generation
 @app.route('/login')
 def login():
     auth = request.authorization
-
     if not auth or not auth.username or not auth.password:
-        return jsonify({'message': 'Could not verify. Please enter all the required details to login.'})
-
+        return jsonify({'message': 'Could not verify. Please enter all the required details to login.'}), 401
     user = auth.username
-
     if user not in users.keys():
-        return jsonify({'message': 'Username not exist'})
+        return jsonify({'message': 'Username does not exist.'}), 401
     elif check_password_hash(users[user][0], auth.password):
         payload = {
             'exp': datetime.utcnow() + timedelta(minutes=30),
@@ -196,8 +202,7 @@ def login():
             'sub': user
         }
         return jsonify({'token': jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')})
-    else:
-        return jsonify({'message': 'You have entered wrong password!'})
+    return jsonify({'message': 'You have entered wrong password.'}), 401
 
 
 if __name__ == '__main__':

@@ -13,7 +13,6 @@ with open("config.json", "r") as c:
 app = Flask(__name__)
 app.secret_key = "Hello-guys-this-is-super-secret-key"
 
-# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://adminrahul:password@db4free.net:3306/fyndimdb'
 # Database URI configuration
 local_server = configuration['local_server']
 if local_server:
@@ -108,11 +107,15 @@ def add_movie(current_user):
         return jsonify({'message': 'You are not allowed to perform this action.'})
 
     data = request.get_json()
-
-    new_movie = Movies(popularity=data['99popularity'], director=data['director'], genre=data['genre'],
-                       imdb_score=data['imdb_score'], name=data['name'])
-    db.session.add(new_movie)
-    db.session.commit()
+    movie = Movies.query.filter_by(name=data['name']).first()
+    if not movie:
+        new_movie = Movies(popularity=data['99popularity'], director=data['director'],
+                           genre=",".join(data['genre']),
+                           imdb_score=data['imdb_score'], name=data['name'])
+        db.session.add(new_movie)
+        db.session.commit()
+    else:
+        return jsonify({"message": "Movie already exist in table."})
 
     return jsonify({'message': 'New Movie added successfully.', 'movie': data})
 
@@ -134,7 +137,7 @@ def modify_movie_data(current_user, id):
         movie.name = data['name']
         movie.popularity = data['99popularity']
         movie.director = data['director']
-        movie.genre = data['genre']
+        movie.genre = ",".join(data['genre'])
         movie.imdb_score = data['imdb_score']
 
         db.session.commit()
@@ -170,6 +173,7 @@ def search_movie(current_user):
 
     if not movies:
         return jsonify({"message": "No movies found"})
+    
     return jsonify({"movies": [movie.serialized for movie in movies]})
 
 

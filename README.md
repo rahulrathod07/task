@@ -6,9 +6,11 @@ Python 3.9.2
 pip install -r requirements.txt
 
 # Postman Collection Usage
-1. Login as admin/user
-2. Set postman environment variable x-access-token from the login response
-3. Use other APIs
+1. Import postman collection from Fynd IMDB.postman_collection.json file
+2. import postman environment from Fynd IMDB Environment.postman_environment.json file
+3. Login as admin/user
+4. Set postman environment variable x-access-token from the login response
+5. Use other APIs
 
 # Scaling Suggestions
 * As of now my database is hosted on db4free.net which is free and does not give faster execution of query, so I will use those servers whose query execution speed is faster for my database.

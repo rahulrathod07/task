@@ -254,15 +254,9 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "https://test-imdb.herokuapp.com/",
-					"protocol": "https",
+					"raw": "{{base-url}}",
 					"host": [
-						"test-imdb",
-						"herokuapp",
-						"com"
-					],
-					"path": [
-						""
+						"{{base-url}}"
 					]
 				}
 			},

@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "0aa4afdf-c4e5-4735-bb7e-ef31e411d7df",
+		"_postman_id": "c3e76091-7cd7-42a6-bdff-5558f84b543f",
 		"name": "Fynd IMDB",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -137,7 +137,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"99popularity\": 78.0,\r\n    \"director\": \"Alain Resnais\",\r\n    \"genre\": [\r\n      \"Drama\",\r\n      \" Mystery\",\r\n      \" Romance\"\r\n    ],\r\n    \"imdb_score\": 7.8,\r\n    \"name\": \"Lanncca9e derniccacre ccca Marienbad\"\r\n  }",
+							"raw": "{\r\n    \"99popularity\": 80.0,\r\n    \"director\": \"James Whale\",\r\n    \"genre\": [\r\n      \"Drama\",\r\n      \" Horror\",\r\n      \" Sci-Fi\"\r\n    ],\r\n    \"imdb_score\": 8.0,\r\n    \"name\": \"Frankenstein\"\r\n  }",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -169,7 +169,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n        \"99popularity\": 68.0,\r\n        \"director\": \"Walter Grauman\",\r\n        \"genre\": [\r\n            \"Drama\",\r\n            \" Thriller\",\r\n            \"Comedy\"\r\n        ],\r\n        \"imdb_score\": 7.0,\r\n        \"name\": \"Lady in a Cage\"\r\n    }",
+							"raw": "{\r\n            \"99popularity\": 90,\r\n            \"director\": \"Jems\",\r\n            \"genre\": [\r\n                \"action\",\r\n                \"drama\"\r\n            ],\r\n            \"imdb_score\": 9.5,\r\n            \"name\": \"The bull\"\r\n        }",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -229,7 +229,7 @@
 							}
 						],
 						"url": {
-							"raw": "{{base-url}}/search?genre=drama,romance",
+							"raw": "{{base-url}}/search?genre=action,drama",
 							"host": [
 								"{{base-url}}"
 							],
@@ -249,17 +249,17 @@
 								},
 								{
 									"key": "99popularity",
-									"value": "80.0",
+									"value": "50",
 									"disabled": true
 								},
 								{
 									"key": "imdb_score",
-									"value": "0.7",
+									"value": "9.0",
 									"disabled": true
 								},
 								{
 									"key": "genre",
-									"value": "drama,romance"
+									"value": "action,drama"
 								}
 							]
 						}

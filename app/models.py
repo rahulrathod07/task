@@ -1,0 +1,23 @@
+from app import extensions
+
+db = extensions.db
+
+# Movie info table
+class Movies(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    popularity = db.Column(db.Integer, nullable=False)
+    director = db.Column(db.String(80), nullable=False)
+    genre = db.Column(db.String(80), nullable=False)
+    imdb_score = db.Column(db.Float, nullable=False)
+    name = db.Column(db.String(80), nullable=False)
+
+    @property
+    def serialized(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'director': self.director,
+            'genre': self.genre.split(','),
+            '99popularity': self.popularity,
+            'imdb_score': self.imdb_score
+        }

@@ -1,4 +1,7 @@
-from app import jwt, os, jsonify, request
+import jwt
+import os
+
+from flask import jsonify,request
 from functools import wraps
 
 

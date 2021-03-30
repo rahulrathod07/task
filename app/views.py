@@ -1,7 +1,12 @@
-from app import app, jwt, os, jsonify, request, check_password_hash
+import jwt
+import os
+
+from app import app
 from app.auth import token_required, admin_required
-from app.models import Users, Movies
 from app.config import db
+from app.models import Users, Movies
+from flask import jsonify, request
+from werkzeug.security import check_password_hash
 
 
 # Login user and token generation

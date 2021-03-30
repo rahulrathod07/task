@@ -1,8 +1,4 @@
-import jwt
-import os
-
-from flask import Flask, jsonify, request
-from werkzeug.security import check_password_hash
+from flask import Flask
 
 app = Flask(__name__)
 

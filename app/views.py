@@ -17,7 +17,7 @@ def login():
         payload = {
             'user': user.serialized
         }
-        return jsonify({'token': jwt.encode(payload, os.environ.get('SECRET_KEY'), algorithm='HS256')})
+        return jsonify({'token': jwt.encode(payload, app.config['SECRET_KEY'], algorithm='HS256')})
     return jsonify({'message': 'You have entered wrong password.'}), 401
 
 

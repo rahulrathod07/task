@@ -1,4 +1,4 @@
-from app import jwt, os, jsonify, request
+from app import app, jwt, os, jsonify, request
 from functools import wraps
 
 
@@ -12,7 +12,7 @@ def token_required(f):
         if not token:
             return jsonify({'message': 'Token is missing.'})
         try:
-            data = jwt.decode(token, os.environ.get('SECRET_KEY'), algorithms=['HS256'])
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])
             current_user = data['user']
         except Exception as e:
             return jsonify({'message': 'Invalid Token. Login Again.'})

@@ -3,11 +3,11 @@ from flask_sqlalchemy import SQLAlchemy
 
 
 URI = "mysql://{}:{}@{}/{}".format(
-    os.environ.get('DB_USERNAME'),
-    os.environ.get('DB_PASSWORD'),
-    os.environ.get('DB_SERVER_NAME'),
-    os.environ.get('DB_NAME')
+    app.config['DB_USERNAME'],
+    app.config['DB_PASSWORD'],
+    app.config['DB_SERVER_NAME'],
+    app.config['DB_NAME']
 )
 # app.config['SQLALCHEMY_DATABASE_URI'] = URI
-app.config['SQLALCHEMY_DATABSE_URI'] = os.environ.get('CLEARDB_DATABASE_URL')
+app.config['SQLALCHEMY_DATABSE_URI'] =  URI
 db = SQLAlchemy(app)

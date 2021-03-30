@@ -1,4 +1,4 @@
-from app.config import db
+from app.configuration import db
 
 
 # Movie info table

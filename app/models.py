@@ -1,6 +1,5 @@
-from app import extensions
+from app.config import db
 
-db = extensions.db
 
 # Movie info table
 class Movies(db.Model):
@@ -20,4 +19,20 @@ class Movies(db.Model):
             'genre': self.genre.split(','),
             '99popularity': self.popularity,
             'imdb_score': self.imdb_score
+        }
+
+
+# Users info table
+class Users(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50))
+    password = db.Column(db.String(500))
+    admin = db.Column(db.Boolean)
+
+    @property
+    def serialized(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'admin': self.admin
         }

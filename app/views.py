@@ -1,19 +1,36 @@
-from app import app,models,extensions
-from flask import jsonify,request
+from app import app, jwt, os, jsonify, request, check_password_hash
+from app.auth import token_required, admin_required
+from app.models import Users, Movies
+from app.config import db
 
-Movies = models.Movies
-db = models.db
+
+# Login user and token generation
+@app.route('/login')
+def login():
+    auth = request.authorization
+    if not auth or not auth.username or not auth.password:
+        return jsonify({'message': 'Could not verify. Please enter all the required details to login.'}), 401
+    user = Users.query.filter_by(name=auth.username).first()
+    if not user:
+        return jsonify({'message': 'Username does not exist.'}), 401
+    elif check_password_hash(user.password, auth.password):
+        payload = {
+            'user': user.serialized
+        }
+        return jsonify({'token': jwt.encode(payload, os.environ.get('SECRET_KEY'), algorithm='HS256')})
+    return jsonify({'message': 'You have entered wrong password.'}), 401
 
 
 # Home page
 @app.route('/')
 def home():
-    return jsonify({'message': 'Welcome to IMDB Task page. Login to perform operations.'})
+    return jsonify({'message': 'Welcome to IMDB Task page.'})
 
 
 # Get all movies
 @app.route('/movies', methods=['GET'])
-def get_all_movies():
+@token_required
+def get_all_movies(current_user):
     movies = Movies.query.all()
     # f.director()
     return jsonify({'message': 'Fetched all movies successfully.', 'movies': [movie.serialized for movie in movies]})
@@ -21,7 +38,8 @@ def get_all_movies():
 
 # Get movie by id
 @app.route('/movies/<id>', methods=['GET'])
-def get_one_movie(id):
+@token_required
+def get_one_movie(current_user, id):
     movie = Movies.query.get(id)
     if not movie:
         return jsonify({'message': 'No movie found for entered id.'}), 404
@@ -30,7 +48,9 @@ def get_one_movie(id):
 
 # Add new movie
 @app.route('/movies', methods=['POST'])
-def add_movie():
+@token_required
+@admin_required
+def add_movie(current_user):
     data = request.get_json()
     movie = Movies.query.filter_by(name=data['name']).first()
     if movie:
@@ -49,7 +69,9 @@ def add_movie():
 
 # Update movie
 @app.route('/movies/<id>', methods=['PUT'])
-def update_movie(id):
+@token_required
+@admin_required
+def update_movie(current_user, id):
     movie = Movies.query.get(id)
     if not movie:
         return jsonify({'message': 'No movie found for entered id.'}), 404
@@ -65,7 +87,9 @@ def update_movie(id):
 
 # Delete movie
 @app.route('/movies/<id>', methods=['DELETE'])
-def delete_movie(id):
+@token_required
+@admin_required
+def delete_movie(current_user, id):
     movie = Movies.query.get(id)
     if not movie:
         return jsonify({'message': 'No movie found for entered id.'}), 404
@@ -74,11 +98,10 @@ def delete_movie(id):
     return jsonify({'message': 'Movie is deleted successfully.', 'movie': movie.serialized})
 
 
-
 # Search movies
 @app.route('/search', methods=['GET'])
+@token_required
 def search_movie(current_user):
-    movies = []
     filters = []
     name = request.args.get('name')
     if name:
@@ -103,4 +126,3 @@ def search_movie(current_user):
     if not movies:
         return jsonify({'message': 'No movies found.', 'movies': movies})
     return jsonify({'message': 'Movies filtered successfully.', 'movies': [movie.serialized for movie in movies]})
-

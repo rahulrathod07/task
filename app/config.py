@@ -2,7 +2,7 @@ from app import app, os
 from flask_sqlalchemy import SQLAlchemy
 
 
-URI = "mysql://{}:{}@{}/{}".format(
+URI = "mysql+pymysql://{}:{}@{}/{}".format(
     os.environ.get('DB_USERNAME'),
     os.environ.get('DB_PASSWORD'),
     os.environ.get('DB_SERVER_NAME'),

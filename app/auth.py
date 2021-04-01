@@ -1,7 +1,7 @@
 import jwt
 import os
 
-from flask import jsonify,request
+from flask import jsonify, request
 from functools import wraps
 
 

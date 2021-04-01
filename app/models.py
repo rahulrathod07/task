@@ -1,14 +1,21 @@
-from app.config import db
+from app.database import db
+from werkzeug.security import generate_password_hash
 
 
 # Movie info table
 class Movies(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    popularity = db.Column(db.Integer, nullable=False)
+    __tablename__ = 'movies'
+    # __table_args__ = {'extend_existing': True}
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(80), nullable=False, unique=True)
     director = db.Column(db.String(80), nullable=False)
-    genre = db.Column(db.String(80), nullable=False)
-    imdb_score = db.Column(db.Float, nullable=False)
-    name = db.Column(db.String(80), nullable=False)
+    popularity = db.Column(db.Integer(), nullable=False)
+    imdb_score = db.Column(db.Float(), nullable=False)
+    genres = db.relationship(
+        "Genres",
+        secondary="movie_genres",
+        viewonly=True
+    )
 
     @property
     def serialized(self):
@@ -16,15 +23,40 @@ class Movies(db.Model):
             'id': self.id,
             'name': self.name,
             'director': self.director,
-            'genre': self.genre.split(','),
+            'genre': [x.name for x in self.genres],
             '99popularity': self.popularity,
             'imdb_score': self.imdb_score
         }
 
+    def __repr__(self):
+        return '<Movie %r>' % self.name
+
+
+class Genres(db.Model):
+    __tablename__ = 'genres'
+    __table_args__ = {'extend_existing': True}
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(80), nullable=False, unique=True)
+
+    def __repr__(self):
+        return '<Genre %r>' % self.name
+
+
+class MovieGenres(db.Model):
+    __tablename__ = 'movie_genres'
+    __table_args__ = {'extend_existing': True}
+    id = db.Column(db.Integer(), primary_key=True)
+    movie_id = db.Column(db.Integer(), db.ForeignKey('movies.id', ondelete='CASCADE'))
+    genre_id = db.Column(db.Integer(), db.ForeignKey('genres.id', ondelete='CASCADE'))
+
+    def __repr__(self):
+        return '<MovieGenre %r:%r>' % (self.movie_id, self.genre_id)
+
 
 # Users info table
 class Users(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    __tablename__ = 'users'
+    id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(50))
     password = db.Column(db.String(500))
     admin = db.Column(db.Boolean)
@@ -36,3 +68,24 @@ class Users(db.Model):
             'name': self.name,
             'admin': self.admin
         }
+
+    def __repr__(self):
+        return '<User %r:%r>' % (self.name, self.admin)
+
+
+# Initialize databases. create tables and users for testing.
+def initialize_db():
+    db.create_all()
+    new_admin = Users(
+        name='admin',
+        password=generate_password_hash('admin', method='sha256'),
+        admin=True
+    )
+    new_user = Users(
+        name='user',
+        password=generate_password_hash('user', method='sha256'),
+        admin=False
+    )
+    db.session.add(new_admin)
+    db.session.add(new_user)
+    db.session.commit()

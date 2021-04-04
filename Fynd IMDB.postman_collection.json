@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "c3e76091-7cd7-42a6-bdff-5558f84b543f",
+		"_postman_id": "f30a422a-dabb-4c8c-bdd6-9704508dfbaa",
 		"name": "Fynd IMDB",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -137,7 +137,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"99popularity\": 80.0,\r\n    \"director\": \"James Whale\",\r\n    \"genre\": [\r\n      \"Drama\",\r\n      \" Horror\",\r\n      \" Sci-Fi\"\r\n    ],\r\n    \"imdb_score\": 8.0,\r\n    \"name\": \"Frankenstein\"\r\n  }",
+							"raw": "{\r\n    \"99popularity\": 78.0,\r\n    \"director\": \"Alain Resnais\",\r\n    \"genre\": [\r\n      \"Drama\",\r\n      \" Mystery\",\r\n      \" Romance\"\r\n    ],\r\n    \"imdb_score\": 7.8,\r\n    \"name\": \"Lanncca9e derniccacre ccca Marienbad\"\r\n  }",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -169,7 +169,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n            \"99popularity\": 90,\r\n            \"director\": \"Jems\",\r\n            \"genre\": [\r\n                \"action\",\r\n                \"drama\"\r\n            ],\r\n            \"imdb_score\": 9.5,\r\n            \"name\": \"The bull\"\r\n        }",
+							"raw": "{\r\n    \"99popularity\": 68.0,\r\n    \"director\": \"Walter Grauman\",\r\n    \"genre\": [\r\n      \" Thriller\",\r\n      \"Drama\"\r\n    ],\r\n    \"imdb_score\": 6.8,\r\n    \"name\": \"Lady in a Cage\"\r\n  }",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -216,9 +216,14 @@
 						}
 					},
 					"response": []
-				},
+				}
+			]
+		},
+		{
+			"name": "Genres",
+			"item": [
 				{
-					"name": "Search",
+					"name": "Get all genres",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -229,7 +234,152 @@
 							}
 						],
 						"url": {
-							"raw": "{{base-url}}/search?genre=action,drama",
+							"raw": "{{base-url}}/genres",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"genres"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get genre by id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{x-access-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base-url}}/genres/{{genre-id}}",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"genres",
+								"{{genre-id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Genre",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{x-access-token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Love\",\r\n    \"description\": \"Love and Romance\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-url}}/genres",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"genres"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Genre",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{x-access-token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Romance\",\r\n    \"description\": \"Love and Romance\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base-url}}/genres/{{genre-id}}",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"genres",
+								"{{genre-id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Genre",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{x-access-token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{base-url}}/genres/{{genre-id}}",
+							"host": [
+								"{{base-url}}"
+							],
+							"path": [
+								"genres",
+								"{{genre-id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Search",
+			"item": [
+				{
+					"name": "Search movies",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "x-access-token",
+								"value": "{{x-access-token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base-url}}/search?name=La grande illusion",
 							"host": [
 								"{{base-url}}"
 							],
@@ -239,27 +389,7 @@
 							"query": [
 								{
 									"key": "name",
-									"value": "The",
-									"disabled": true
-								},
-								{
-									"key": "director",
-									"value": "james",
-									"disabled": true
-								},
-								{
-									"key": "99popularity",
-									"value": "50",
-									"disabled": true
-								},
-								{
-									"key": "imdb_score",
-									"value": "9.0",
-									"disabled": true
-								},
-								{
-									"key": "genre",
-									"value": "action,drama"
+									"value": "La grande illusion"
 								}
 							]
 						}

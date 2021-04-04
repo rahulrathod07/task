@@ -1,4 +1,5 @@
 import os
+
 from app import app
 from app.models import initialize_db
 

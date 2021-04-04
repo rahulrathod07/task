@@ -1,11 +1,10 @@
-from app.database import db
+from app import db
 from werkzeug.security import generate_password_hash
 
 
 # Movie info table
 class Movies(db.Model):
     __tablename__ = 'movies'
-    # __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(80), nullable=False, unique=True)
     director = db.Column(db.String(80), nullable=False)
@@ -28,29 +27,27 @@ class Movies(db.Model):
             'imdb_score': self.imdb_score
         }
 
-    def __repr__(self):
-        return '<Movie %r>' % self.name
-
 
 class Genres(db.Model):
     __tablename__ = 'genres'
-    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(80), nullable=False, unique=True)
+    description = db.Column(db.String(500), nullable=False)
 
-    def __repr__(self):
-        return '<Genre %r>' % self.name
+    @property
+    def serialized(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+        }
 
 
 class MovieGenres(db.Model):
     __tablename__ = 'movie_genres'
-    __table_args__ = {'extend_existing': True}
     id = db.Column(db.Integer(), primary_key=True)
     movie_id = db.Column(db.Integer(), db.ForeignKey('movies.id', ondelete='CASCADE'))
     genre_id = db.Column(db.Integer(), db.ForeignKey('genres.id', ondelete='CASCADE'))
-
-    def __repr__(self):
-        return '<MovieGenre %r:%r>' % (self.movie_id, self.genre_id)
 
 
 # Users info table
@@ -68,9 +65,6 @@ class Users(db.Model):
             'name': self.name,
             'admin': self.admin
         }
-
-    def __repr__(self):
-        return '<User %r:%r>' % (self.name, self.admin)
 
 
 # Initialize databases. create tables and users for testing.

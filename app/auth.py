@@ -20,6 +20,7 @@ def token_required(f):
         except Exception as e:
             return jsonify({'message': 'Invalid Token. Login Again.'})
         return f(current_user, *args, **kwargs)
+
     return decorated
 
 
@@ -31,5 +32,5 @@ def admin_required(f):
         if not current_user['admin']:
             return jsonify({'message': 'You are not allowed to perform this action.'}), 401
         return f(*args, **kwargs)
-    return decorated
 
+    return decorated
